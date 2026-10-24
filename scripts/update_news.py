@@ -16,7 +16,6 @@ FEEDS = [
     ('nhk', 'NHK・主要', '国内', 'https://news.web.nhk/n-data/conf/na/rss/cat0.xml'),
     ('nhk_social', 'NHK・社会', '社会', 'https://news.web.nhk/n-data/conf/na/rss/cat1.xml'),
     ('nhk_world', 'NHK・国際', '国際', 'https://news.web.nhk/n-data/conf/na/rss/cat6.xml'),
-    ('itmedia', 'ITmedia NEWS', 'IT・AI', 'https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml'),
     ('forest', '窓の杜', 'IT・AI', 'https://forest.watch.impress.co.jp/data/rss/1.0/wf/feed.rdf'),
     ('pcwatch', 'PC Watch', 'IT・AI', 'https://pc.watch.impress.co.jp/data/rss/1.0/pcw/feed.rdf'),
     ('nippon', 'nippon.com', '国内', 'https://www.nippon.com/ja/rss-others/news.xml'),
@@ -77,9 +76,8 @@ def collect(feed, now_ms):
             link = atom_link.get('href', '') if atom_link is not None else ''
         if not title or not link.startswith(('http://', 'https://')):
             continue
-        description = clean(child_text(item, ['description', f'{ATOM}summary', '{http://purl.org/rss/1.0/modules/content/}encoded']))[:310]
-        if description.startswith(title):
-            description = description[len(title):].strip()
+        # Public Pages edition deliberately does not redistribute RSS summaries.
+        description = ''
         published = child_text(item, ['pubDate', f'{ATOM}published', f'{ATOM}updated', DC_DATE])
         article_id = hashlib.sha256((link.split('#')[0] + '|' + title).encode('utf-8')).hexdigest()[:20]
         articles.append({'id': article_id, 'title': title, 'description': description, 'url': link, 'source': name, 'category': category, 'issued': date_ms(published, now_ms), 'lang': 'ja'})
